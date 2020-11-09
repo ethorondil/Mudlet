@@ -158,7 +158,7 @@ bool TCommandLine::event(QEvent* event)
 
         }
 
-        if (true) {
+        if (mpHost->mReadlineBindings) {
             if ((ke->modifiers() & allModifiers) == Qt::ControlModifier) {
                 switch (ke->key()) {
                 case Qt::Key_Slash:

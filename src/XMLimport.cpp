@@ -778,6 +778,11 @@ void XMLimport::readHostPackage(Host* pHost)
     } else {
         pHost->mHighlightHistory = true;
     }
+    if (attributes().hasAttribute("ReadlineBindings")) {
+        pHost->mReadlineBindings = attributes().value("ReadlineBindings") == "yes";
+    } else {
+        pHost->mReadlineBindings = true;
+    }
     if (attributes().hasAttribute("AmbigousWidthGlyphsToBeWide")) {
         const QStringRef ambiguousWidthSetting(attributes().value("AmbigousWidthGlyphsToBeWide"));
         if (ambiguousWidthSetting == QStringLiteral("yes")) {

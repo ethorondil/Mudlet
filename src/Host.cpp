@@ -204,6 +204,7 @@ Host::Host(int port, const QString& hostname, const QString& login, const QStrin
 , mAllowToSendCommand(true)
 , mAutoClearCommandLineAfterSend(false)
 , mHighlightHistory(true)
+, mReadlineBindings(false)
 , mBlockScriptCompile(true)
 , mBlockStopWatchCreation(true)
 , mEchoLuaErrors(false)
