@@ -74,6 +74,8 @@ TCommandLine::TCommandLine(Host* pHost, CommandLineType type, TConsole* pConsole
     // We do NOT want the standard context menu to happen as we generate it
     // ourself:
     setContextMenuPolicy(Qt::PreventContextMenu);
+
+    setCursorWidth(QFontMetrics(font()).averageCharWidth());
 }
 
 void TCommandLine::processNormalKey(QEvent* event)
