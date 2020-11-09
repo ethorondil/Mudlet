@@ -859,7 +859,7 @@ void TCommandLine::enterCommand(QKeyEvent* event)
         }
         setPalette(mRegularPalette);
 
-        mHistoryList.removeAll(toPlainText());
+        //mHistoryList.removeAll(toPlainText());
         if (!mHistoryList.isEmpty()) {
             mHistoryList[0] = toPlainText();
         } else {
