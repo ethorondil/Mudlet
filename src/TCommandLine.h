@@ -43,7 +43,13 @@ class TCommandLine : public QPlainTextEdit //QLineEdit
 
     enum MoveDirection {
         MOVE_UP,
-        MOVE_DOWN
+        MOVE_DOWN,
+        MOVE_LEFT,
+        MOVE_RIGHT
+    };
+    enum WordSet {
+        WORD_ALNUM,
+        WORD_NONSPACE
     };
 
 public:
@@ -85,6 +91,7 @@ private:
     void processNormalKey(QEvent*);
     bool keybindingMatched(QKeyEvent*);
     CommandLineType mType;
+    void findBoundary(QTextCursor::MoveOperation, QTextCursor::MoveMode, WordSet);
 
     QPointer<Host> mpHost;
     KeyUnit* mpKeyUnit;

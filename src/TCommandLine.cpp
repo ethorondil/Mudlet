@@ -105,6 +105,35 @@ bool TCommandLine::keybindingMatched(QKeyEvent* keyEvent)
     }
 }
 
+// Method to move cursor to the beginning/end of the next word.  The word boundary definitions
+// are somewhat different from QTextCursor: if alnum is true, words are alphanumeric; if false,
+// words are non-space characters.
+void TCommandLine::findBoundary(QTextCursor::MoveOperation moveOperation, QTextCursor::MoveMode moveMode, WordSet boundary) {
+    QTextCursor oldCursor = textCursor();
+    QTextCursor c = textCursor();
+    bool found = false;
+    while(true) {
+        c.clearSelection();
+        if (!c.movePosition(moveOperation, QTextCursor::KeepAnchor)) {
+            break;
+        }
+        QString character = c.selectedText();
+        if (!character.size()) {
+            // This probably shouldn't happen, but better safe than sorry.
+            break;
+        }
+        if ((boundary == WORD_ALNUM && (character[0].isLetter() || character[0].isDigit()))
+            || (boundary == WORD_NONSPACE && (!character[0].isSpace()))) {
+            found = true;
+        } else if (found) {
+            break;
+        }
+    }
+    oldCursor.setPosition(c.anchor(), moveMode);
+    setTextCursor(oldCursor);
+}
+
+
 // This function overrides the QWidget::event() and should return true if the
 // event was recognized, otherwise it should return false. If the recognized
 // event was accepted (see QEvent::accepted), any further processing such as
@@ -127,6 +156,67 @@ bool TCommandLine::event(QEvent* event)
             ke->accept();
             return true;
 
+        }
+
+        if (true) {
+            if ((ke->modifiers() & allModifiers) == Qt::ControlModifier) {
+                switch (ke->key()) {
+                case Qt::Key_Slash:
+                    undo();
+                    return true;
+                case Qt::Key_Period:
+                    redo();
+                    return true;
+                case Qt::Key_A:
+                    moveCursor(QTextCursor::Start);
+                    return true;
+                case Qt::Key_Left:
+                case Qt::Key_Right:
+                    findBoundary(ke->key() == Qt::Key_Left ? QTextCursor::Left : QTextCursor::Right,
+                                 QTextCursor::MoveAnchor, WORD_ALNUM);
+                    return true;
+                case Qt::Key_W:
+                    findBoundary(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor, WORD_NONSPACE);
+                    cut();
+                    return true;
+                case Qt::Key_R:
+                case Qt::Key_S:
+                    /// HISTORY SEARCH, NOT IMPLEMENTED YET
+                    break;
+                case Qt::Key_T:
+                    // Transpose
+                    moveCursor(QTextCursor::PreviousCharacter, QTextCursor::KeepAnchor);
+                    cut();
+                    moveCursor(QTextCursor::NextCharacter, QTextCursor::MoveAnchor);
+                    paste();
+                    return true;
+                case Qt::Key_U:
+                    moveCursor(QTextCursor::Start, QTextCursor::KeepAnchor);
+                    cut();
+                    return true;
+                case Qt::Key_K:
+                    moveCursor(QTextCursor::End, QTextCursor::KeepAnchor);
+                    cut();
+                    return true;
+                case Qt::Key_Y:
+                    paste();
+                    return true;
+                }
+            } else if ((ke->modifiers() & allModifiers) == Qt::AltModifier) {
+                switch (ke->key()) {
+                case Qt::Key_B:
+                case Qt::Key_F:
+                    findBoundary(ke->key() == Qt::Key_B ? QTextCursor::PreviousCharacter : QTextCursor::NextCharacter,
+                                 QTextCursor::MoveAnchor, WORD_ALNUM);
+                    return true;
+                case Qt::Key_Backspace:
+                case Qt::Key_D:
+                    findBoundary(ke->key() == Qt::Key_Backspace ? QTextCursor::PreviousCharacter : QTextCursor::NextCharacter,
+                                 QTextCursor::KeepAnchor, WORD_ALNUM);
+                    cut();
+                    return true;
+                }
+            }
         }
 
         switch (ke->key()) {
