@@ -81,7 +81,9 @@ void TCommandLine::processNormalKey(QEvent* event)
     QPlainTextEdit::event(event);
     adjustHeight();
 
-    mHistoryBuffer = 0;
+    if (mpHost->mHighlightHistory) {
+        mHistoryBuffer = 0;
+    }
     if (mTabCompletionOld != toPlainText()) {
         mUserKeptOnTyping = true;
         mAutoCompletionCount = -1;
@@ -132,7 +134,9 @@ bool TCommandLine::event(QEvent* event)
                 mTabCompletionCount = -1;
                 mAutoCompletionCount = -1;
                 mTabCompletionTyped.clear();
-                mHistoryBuffer = 0;
+                if (mpHost->mHighlightHistory) {
+                    mHistoryBuffer = 0;
+                }
                 mLastCompletion.clear();
                 break;
 
@@ -214,7 +218,9 @@ bool TCommandLine::event(QEvent* event)
         case Qt::Key_Backspace:
             if ((ke->modifiers() & (allModifiers & ~(Qt::ControlModifier|Qt::ShiftModifier))) == Qt::NoModifier) {
                 // Ignore state of <CTRL> and <SHIFT> keys
-                mHistoryBuffer = 0;
+                if (mpHost->mHighlightHistory) {
+                    mHistoryBuffer = 0;
+                }
 
                 if (mTabCompletionTyped.size() >= 1) {
                     mTabCompletionTyped.chop(1);
@@ -237,7 +243,9 @@ bool TCommandLine::event(QEvent* event)
 
         case Qt::Key_Delete:
             if ((ke->modifiers() & allModifiers) == Qt::NoModifier) {
-                mHistoryBuffer = 0;
+                if (mpHost->mHighlightHistory) {
+                    mHistoryBuffer = 0;
+                }
 
                 if (mTabCompletionTyped.size() >= 1) {
                     mTabCompletionTyped.chop(1);
@@ -389,7 +397,9 @@ bool TCommandLine::event(QEvent* event)
                 mTabCompletionCount = -1;
                 mAutoCompletionCount = -1;
                 setPalette(mRegularPalette);
-                mHistoryBuffer = 0;
+                if (mpHost->mHighlightHistory) {
+                    mHistoryBuffer = 0;
+                }
                 ke->accept();
                 return true;
 
@@ -991,6 +1001,9 @@ void TCommandLine::historyMove(MoveDirection direction)
     }
     int shift = (direction == MOVE_UP ? 1 : -1);
     if ((textCursor().selectedText().size() == toPlainText().size()) || (toPlainText().size() == 0) || !mpHost->mHighlightHistory) {
+        if (!mpHost->mHighlightHistory && mHistoryBuffer < mHistoryList.size()) {
+            mHistoryList[mHistoryBuffer] = toPlainText();
+        }
         mHistoryBuffer += shift;
         if (mHistoryBuffer >= mHistoryList.size()) {
             mHistoryBuffer = mHistoryList.size() - 1;
